@@ -1,6 +1,6 @@
 package core.lexer.node;
 
-public class TextNode implements Node{
+public class TextToken implements Token {
 
     private String content;
 
@@ -12,5 +12,9 @@ public class TextNode implements Node{
     @Override
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getContent() {
+        return content;
     }
 }

@@ -1,8 +1,10 @@
 package core.lexer.node;
 
-public class HeadingNode implements Node {
+import core.lexer.node.utils.HeadingTokenType;
 
-    private HeadingNodeType type;
+public class HeadingToken implements Token {
+
+    private HeadingTokenType type;
 
     @Override
     public String toString() {
@@ -13,7 +15,11 @@ public class HeadingNode implements Node {
     public void setContent(String content) {
         int length = content.length();
         if(length > 0) {
-            type = HeadingNodeType.values()[length - 1];
+            type = HeadingTokenType.values()[length - 1];
         }
+    }
+
+    public HeadingTokenType getType() {
+        return type;
     }
 }

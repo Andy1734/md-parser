@@ -1,6 +1,6 @@
 package core.lexer.node;
 
-public interface Node {
+public interface Token {
 
     void setContent(String content);
 

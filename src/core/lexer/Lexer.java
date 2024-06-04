@@ -1,8 +1,8 @@
 package core.lexer;
 
-import core.lexer.node.HeadingNode;
-import core.lexer.node.Node;
-import core.lexer.node.TextNode;
+import core.lexer.node.HeadingToken;
+import core.lexer.node.Token;
+import core.lexer.node.TextToken;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ public class Lexer {
     private Lexer() {
     }
 
-    public static List<Node> run(String text) {
-        return run(State.of(text)).getNodes();
+    public static List<Token> run(String text) {
+        return run(State.of(text)).getTokens();
     }
 
     private static State run(State state) {
@@ -34,7 +34,7 @@ public class Lexer {
                         return run(state.with(Section.HEADING_MARKER));
                     }
                     if(Character.isWhitespace(character)) {
-                        state.appendNode(new HeadingNode());
+                        state.appendToken(new HeadingToken());
                         return run(state.with(Section.TEXT));
                     }
                 }
@@ -43,7 +43,7 @@ public class Lexer {
                         return run(state.with(Section.TEXT));
                     }
                     if(character == '\0') {
-                        state.appendNode(new TextNode());
+                        state.appendToken(new TextToken());
                         return state;
                     }
                 }

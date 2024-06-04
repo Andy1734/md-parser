@@ -1,17 +1,17 @@
 package core.lexer;
 
-import core.lexer.node.Node;
+import core.lexer.node.Token;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class State {
 
-    private String text;
+    private final String text;
     private Section section;
     private int index;
     private StringBuilder content;
-    private List<Node> nodes;
+    private final List<Token> tokens;
 
     public static State of(String text) {
         return new State(text);
@@ -22,7 +22,7 @@ public class State {
         this.section = Section.NEWLINE;
         this.index = 0;
         this.content = new StringBuilder();
-        this.nodes = new LinkedList<>();
+        this.tokens = new LinkedList<>();
     }
 
     public State with(Section section) {
@@ -37,10 +37,10 @@ public class State {
         }
     }
 
-    public void appendNode(Node node) {
-        node.setContent(content.toString());
+    public void appendToken(Token token) {
+        token.setContent(content.toString());
         content = new StringBuilder();
-        nodes.add(node);
+        tokens.add(token);
     }
 
     public Section getSection() {
@@ -55,8 +55,8 @@ public class State {
         return content.toString();
     }
 
-    public List<Node> getNodes() {
-        return nodes;
+    public List<Token> getTokens() {
+        return tokens;
     }
 
     public Character getChar() {
