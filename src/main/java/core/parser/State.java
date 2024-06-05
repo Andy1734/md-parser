@@ -20,6 +20,8 @@ public class State {
     private State(List<Token> tokens) {
         this.tokens = tokens;
         this.nodes = new LinkedList<>();
+        this.index = 0;
+        this.section = Section.NEWLINE;
     }
 
     public void appendNode(Node node) {

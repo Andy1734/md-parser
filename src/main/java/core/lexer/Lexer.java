@@ -1,8 +1,8 @@
 package core.lexer;
 
 import core.lexer.node.HeadingToken;
-import core.lexer.node.Token;
 import core.lexer.node.TextToken;
+import core.lexer.node.Token;
 
 import java.util.List;
 
@@ -19,7 +19,9 @@ public class Lexer {
         final Character character = state.getChar();
         if(character != null) {
             final Section section = state.getSection();
-            state.appendChar(character);
+            if(!List.of('\n', '\r').contains(character)) {
+                state.appendChar(character);
+            }
             switch(section) {
                 case NEWLINE -> {
                     if(character == '#') {
@@ -27,6 +29,9 @@ public class Lexer {
                     }
                     if(Character.isDigit(character) || Character.isLetter(character)) {
                         return run(state.with(Section.TEXT));
+                    }
+                    if(character == '\0') {
+                        return state;
                     }
                 }
                 case HEADING_MARKER -> {
@@ -39,6 +44,10 @@ public class Lexer {
                     }
                 }
                 case TEXT -> {
+                    if(character == '\n' || character == '\r') {
+                        state.appendToken(new TextToken());
+                        return run(state.with(Section.NEWLINE));
+                    }
                     if(Character.isWhitespace(character) || Character.isLetter(character) || Character.isDigit(character)) {
                         return run(state.with(Section.TEXT));
                     }
