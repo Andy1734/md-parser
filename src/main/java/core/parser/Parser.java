@@ -1,9 +1,8 @@
 package core.parser;
 
 import core.TextType;
-import core.lexer.node.HeadingToken;
-import core.lexer.node.TextToken;
-import core.lexer.node.Token;
+import core.lexer.token.Token;
+import core.lexer.token.TokenType;
 import core.parser.node.Node;
 import core.parser.node.TextNode;
 
@@ -24,21 +23,22 @@ public class Parser {
     private static State run(State state, Map<String, Object> properties) {
         Token token = state.getToken();
         if(token != null) {
+            TokenType tokenType = token.tokenType();
             Section section = state.getSection();
             switch(section) {
                 case NEWLINE -> {
-                    if(token instanceof HeadingToken headingToken) {
-                        properties.put("heading_type", headingToken.getType());
+                    if(tokenType == TokenType.HEADING_TOKEN) {
+                        properties.put("heading_type", token.text());
                         return run(state.with(Section.HEADING), properties);
                     }
-                    if(token instanceof TextToken textToken) {
-                        state.appendNode(new TextNode(TextType.P, textToken.getContent()));
+                    if(tokenType == TokenType.TEXT_TOKEN) {
+                        state.appendNode(new TextNode(TextType.P, token.text()));
                         return run(state.with(Section.NEWLINE));
                     }
                 }
                 case HEADING -> {
-                    if(token instanceof TextToken textToken && properties.get("heading_type") instanceof TextType textType) {
-                        state.appendNode(new TextNode(textType, textToken.getContent()));
+                    if(tokenType == TokenType.TEXT_TOKEN) {
+                        //state.appendNode(new TextNode());
                         return run(state.with(Section.NEWLINE));
                     }
                 }

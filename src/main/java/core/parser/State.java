@@ -1,6 +1,6 @@
 package core.parser;
 
-import core.lexer.node.Token;
+import core.lexer.token.Token;
 import core.parser.node.Node;
 
 import java.util.LinkedList;

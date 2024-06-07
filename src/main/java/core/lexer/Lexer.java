@@ -1,8 +1,6 @@
 package core.lexer;
 
-import core.lexer.node.HeadingToken;
-import core.lexer.node.TextToken;
-import core.lexer.node.Token;
+import core.lexer.token.*;
 
 import java.util.List;
 
@@ -12,49 +10,59 @@ public class Lexer {
     }
 
     public static List<Token> run(String text) {
-        return run(State.of(text)).getTokens();
+        return run(State.of(text + '\0')).getTokens();
     }
 
     private static State run(State state) {
         final Character character = state.getChar();
         if(character != null) {
+            final boolean alphanumeric = Character.isDigit(character) || Character.isLetter(character);
+            final boolean end = character == '\0';
+            final boolean newline = character == '\n' || character == '\r';
             final Section section = state.getSection();
-            if(!List.of('\n', '\r').contains(character)) {
-                state.appendChar(character);
-            }
             switch(section) {
-                case NEWLINE -> {
+                case UNDETERMINED -> {
                     if(character == '#') {
-                        return run(state.with(Section.HEADING_MARKER));
+                        return run(state.start(Section.HEADING_MARKER));
                     }
-                    if(Character.isDigit(character) || Character.isLetter(character)) {
-                        return run(state.with(Section.TEXT));
+                    if(alphanumeric) {
+                        return run(state.start(Section.TEXT));
                     }
-                    if(character == '\0') {
+                    if(newline) {
+                        return run(state.with(Section.UNDETERMINED));
+                    }
+                    if(character == '[') {
+                        return run(TagLexer.run(state.start(Section.TAG_START)).with(Section.UNDETERMINED));
+                    }
+                    if(end) {
                         return state;
                     }
+                    return run(state.reset());
                 }
                 case HEADING_MARKER -> {
                     if(character == '#') {
+                        state.appendChar(character);
                         return run(state.with(Section.HEADING_MARKER));
                     }
+                    if(alphanumeric) {
+                        return run(state.start(Section.TEXT));
+                    }
                     if(Character.isWhitespace(character)) {
-                        state.appendToken(new HeadingToken());
+                        state.appendToken(TokenType.HEADING_TOKEN);
                         return run(state.with(Section.TEXT));
                     }
                 }
                 case TEXT -> {
-                    if(character == '\n' || character == '\r') {
-                        state.appendToken(new TextToken());
-                        return run(state.with(Section.NEWLINE));
-                    }
-                    if(Character.isWhitespace(character) || Character.isLetter(character) || Character.isDigit(character)) {
-                        return run(state.with(Section.TEXT));
+                    if(newline) {
+                        state.appendToken(TokenType.TEXT_TOKEN);
+                        return run(state.with(Section.UNDETERMINED));
                     }
                     if(character == '\0') {
-                        state.appendToken(new TextToken());
+                        state.appendToken(TokenType.TEXT_TOKEN);
                         return state;
                     }
+                    state.appendChar(character);
+                    return run(state.with(Section.TEXT));
                 }
             }
             throw new LexingException(state);

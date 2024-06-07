@@ -11,7 +11,7 @@ import java.util.List;
 public class Runner {
 
     public static List<Node> use(String text) {
-        return Parser.run(Lexer.run(text + '\0'));
+        return Parser.run(Lexer.run(text));
     }
 
     public static List<Node> useFile(String path) throws IOException {
